@@ -5,9 +5,10 @@ type Props = {
   text: string;
   textStyle?: TextStyle;
   speed?: number;
+  onComplete?: () => void; // Add the onComplete prop
 };
 
-const TextTyping = ({ text, textStyle, speed = 100 }: Props) => {
+const TextTyping = ({ text, textStyle, speed = 100, onComplete }: Props) => {
   const [displayedText, setDisplayedText] = useState('');
 
   useEffect(() => {
@@ -17,10 +18,11 @@ const TextTyping = ({ text, textStyle, speed = 100 }: Props) => {
       index++;
       if (index >= text.length) {
         clearInterval(interval);
+        onComplete?.(); // Call onComplete when typing is done
       }
     }, speed);
     return () => clearInterval(interval);
-  }, [text, speed]);
+  }, [text, speed, onComplete]);
 
   return <Text style={textStyle}>{displayedText}</Text>;
 };

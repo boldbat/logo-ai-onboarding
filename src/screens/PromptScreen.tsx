@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, Dimensions, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions, StatusBar } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import TextTyping from '../components/TextTyping';
 import CustomButton from '../components/CustomButton';
+import AnimatedLogoFlow from '../components/AnimatedLogoFlow'; // Import the new component
+import PageIndicator from '../components/PageIndicator';
 
 type PromptScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Prompt'>;
 
@@ -11,10 +13,25 @@ type Props = {
   navigation: PromptScreenNavigationProp;
 };
 
+const { width, height } = Dimensions.get('window');
+
 const PromptScreen = ({ navigation }: Props) => {
   const promptText = "Create a Burger Restaurant logo with the brand name Goku";
   const fadeIn = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(30)).current;
+    const [typingDone, setTypingDone] = React.useState(false);
+
+    const logoPaths = [
+        require('../../assets/logo01.png'),
+        require('../../assets/Logo02.png'),
+        require('../../assets/Logo03.png'),
+        require('../../assets/logo04.png'),
+        require('../../assets/logo05.png'),
+        require('../../assets/logo06.png'),
+        require('../../assets/logo07.png'),
+        require('../../assets/logo08.png'),
+        require('../../assets/logo09.png'),
+    ];
 
   useEffect(() => {
     Animated.parallel([
@@ -32,40 +49,19 @@ const PromptScreen = ({ navigation }: Props) => {
   }, []);
 
   const handleNext = () => {
-    Animated.parallel([
-      Animated.timing(fadeIn, {
-        toValue: 0,
-        duration: 400,
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: -30,
-        duration: 400,
-        useNativeDriver: true,
-      })
-    ]).start(() => {
       navigation.navigate('Benefits');
-    });
   };
 
-  const logoGrid = Array(6).fill(null);
+    const onTypingComplete = () => {
+        setTypingDone(true);
+    }
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#000" />
 
-      {/* Background with logo grid */}
-      <View style={styles.logoGrid}>
-        {logoGrid.map((_, index) => (
-          <View key={index} style={styles.logoItem}>
-            {/* You would replace this with actual sample logos */}
-            <View style={[styles.dummyLogo, {
-              backgroundColor: index % 2 === 0 ? '#111' : '#222',
-              opacity: 0.7 + (Math.random() * 0.3)
-            }]} />
-          </View>
-        ))}
-      </View>
+       {typingDone && <AnimatedLogoFlow logos={logoPaths} />}
+
       <Animated.View
         style={[
           styles.contentContainer,
@@ -79,6 +75,7 @@ const PromptScreen = ({ navigation }: Props) => {
           text={promptText}
           textStyle={styles.promptText}
           speed={50}
+                    onComplete={onTypingComplete}
         />
         <View style={styles.buttonContainer}>
           <CustomButton
@@ -86,62 +83,41 @@ const PromptScreen = ({ navigation }: Props) => {
             onPress={handleNext}
           />
         </View>
+        <PageIndicator numPages={4} currentPage={1} />
       </Animated.View>
     </View>
   );
 };
 
-const { width, height } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
-    justifyContent: 'flex-start', // Align items at the top
+    justifyContent: 'flex-start',
     alignItems: 'center',
-  },
-  logoGrid: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: '50%', // Adjust to keep logos in the top half
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 5,
-  },
-  logoItem: {
-    width: width / 3 - 10,
-    height: width / 4 - 10,
-    padding: 5,
-  },
-  dummyLogo: {
-    flex: 1,
-    borderRadius: 12,
-    overflow: 'hidden',
   },
   contentContainer: {
     flex: 1,
-    justifyContent: 'center', // Center content vertically
+    justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    marginTop: height / 3, // Push content down
+    marginTop: height / 4, // Adjust positioning as needed
   },
-   promptText: {
+  promptText: {
     fontSize: 36,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
     marginBottom: 50,
     lineHeight: 46,
-    paddingHorizontal: 20, // Add horizontal padding
+    paddingHorizontal: 20,
   },
   buttonContainer: {
     marginBottom: 32,
     borderRadius: 30,
     overflow: 'hidden',
-    width: '80%', // Button width to 80% of the screen
-    maxWidth: 400, // Maximum button width
+    width: '80%',
+    maxWidth: 400,
   },
 });
 

@@ -1,104 +1,107 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
-import CustomButton from '../components/CustomButton';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import CustomButton from '../components/CustomButton';
+import PageIndicator from '../components/PageIndicator';
 
 type PricingScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Pricing'>;
 
 type Props = {
-  navigation: PricingScreenNavigationProp;
+    navigation: PricingScreenNavigationProp;
 };
 
 interface PlanProps {
-  title: string;
-  price: string;
-  period: string;
-  features: string[];
-  isPopular?: boolean;
-  index: number;
+    title: string;
+    price: string;
+    period: string;
+    features: string[];
+    isPopular?: boolean;
+    index: number;
 }
 
 const PricingPlan = ({ title, price, period, features, isPopular, index }: PlanProps) => {
-  const fadeIn = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(50)).current;
+    const fadeIn = useRef(new Animated.Value(0)).current;
+    const translateY = useRef(new Animated.Value(50)).current;
 
-  useEffect(() => {
-    const delay = index * 200;
-    Animated.parallel([
-      Animated.timing(fadeIn, {
-        toValue: 1,
-        duration: 800,
-        delay,
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 800,
-        delay,
-        useNativeDriver: true,
-      })
-    ]).start();
-  }, []);
+    useEffect(() => {
+        const delay = index * 200;
+        Animated.parallel([
+            Animated.timing(fadeIn, {
+                toValue: 1,
+                duration: 800,
+                delay,
+                useNativeDriver: true,
+            }),
+            Animated.timing(translateY, {
+                toValue: 0,
+                duration: 800,
+                delay,
+                useNativeDriver: true,
+            })
+        ]).start();
+    }, [fadeIn, translateY, index]);
 
-  return (
-    <Animated.View
-      style={[
-        styles.planContainer,
-        isPopular && styles.popularPlan,
-        {
-          opacity: fadeIn,
-          transform: [{ translateY }]
-        }
-      ]}
-    >
-      {isPopular && <View style={styles.popularBadge}><Text style={styles.popularText}>Popular</Text></View>}
-      <Text style={styles.planTitle}>{title}</Text>
-      <View style={styles.priceContainer}>
-        <Text style={styles.price}>{price}</Text>
-        <Text style={styles.period}>/{period}</Text>
-      </View>
-      {features.map((feature, idx) => (
-        <Text key={idx} style={styles.feature}>• {feature}</Text>
-      ))}
-    </Animated.View>
-  );
+    return (
+        <Animated.View
+            style={[
+                styles.planContainer,
+                isPopular && styles.popularPlan,
+                {
+                    opacity: fadeIn,
+                    transform: [{ translateY }]
+                }
+            ]}
+        >
+            {isPopular && <View style={styles.popularBadge}><Text style={styles.popularText}>Popular</Text></View>}
+            <Text style={styles.planTitle}>{title}</Text>
+            <View style={styles.priceContainer}>
+                <Text style={styles.price}>{price}</Text>
+                <Text style={styles.period}>/{period}</Text>
+            </View>
+            {features.map((feature, idx) => (
+                <Text key={idx} style={styles.feature}>• {feature}</Text>
+            ))}
+        </Animated.View>
+    );
 };
 
 const PricingScreen = ({ navigation }: Props) => {
-  const handleSubscribe = () => {
-    // Handle subscription logic here
-  };
+    const [currentPage] = React.useState(3);
+    const handleSubscribe = () => {
+        // Handle subscription logic here
+    };
 
-  const plans = [
-    {
-      title: 'Monthly',
-      price: '$9.99',
-      period: 'month',
-      features: ['Unlimited logos', 'High-resolution exports', 'Full customization'],
-    },
-    {
-      title: 'Annual',
-      price: '$99.99',
-      period: 'year',
-      features: ['Everything in Monthly', '2 months free', 'Priority support'],
-      isPopular: true,
-    }
-  ];
+    const plans = [
+        {
+            title: 'Monthly',
+            price: '$9.99',
+            period: 'month',
+            features: ['Unlimited logos', 'High-resolution exports', 'Full customization'],
+        },
+        {
+            title: 'Annual',
+            price: '$99.99',
+            period: 'year',
+            features: ['Everything in Monthly', '2 months free', 'Priority support'],
+            isPopular: true,
+        }
+    ];
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Choose Your Plan</Text>
-      {plans.map((plan, index) => (
-        <PricingPlan
-          key={index}
-          {...plan}
-          index={index}
-        />
-      ))}
-      <CustomButton title="Subscribe Now" onPress={handleSubscribe} />
-    </View>
-  );
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>Choose Your Plan</Text>
+            {plans.map((plan, index) => (
+                <PricingPlan
+                    key={index}
+                    {...plan}
+                    index={index}
+                />
+            ))}
+            <CustomButton title="Subscribe Now" onPress={handleSubscribe} />
+            <PageIndicator numPages={4} currentPage={currentPage} />
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
